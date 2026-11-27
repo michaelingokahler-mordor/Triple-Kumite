@@ -1,10 +1,10 @@
 # Triple Kumite
 
-Spielbarer Windows-Prototyp mit Godot 4.5.1. Starte `build/Triple-Kumite-0.4.0.exe`. F11 wechselt zwischen Vollbild und Fenster.
+Spielbarer Windows-Prototyp mit Godot 4.5.1. Starte `build/Triple-Kumite-0.5.1.exe`. F11 wechselt zwischen Vollbild und Fenster.
 
 ## Turnier
 
-Das Turnier beginnt im Dreikampf in Japan. Nach drei Runden entscheidet die Zahl der Rundensiege. Bei Gleichstand kämpfen die Führenden im Stechen um den nächsten Treffer. Ein menschlicher Sieger kommt nach Marokko und tritt dort in drei weiteren Runden gegen zwei CPU-Kämpfer an. Gewinnt eine CPU in Japan, endet der Lauf. Im Turnier folgen die Kämpfe direkt aufeinander.
+Die Turnierroute führt vom Küstendojo in Japan über den Kasbah-Hof in Marokko bis zum Finale an der Praia Vermelha in Rio de Janeiro. An jeder Station entscheidet nach drei Runden die Zahl der Rundensiege. Bei Gleichstand kämpfen die Führenden im Stechen um den nächsten Treffer. Wer als menschlicher Spieler gewinnt, tritt an der nächsten Station gegen zwei CPU-Kämpfer an. Ein CPU-Sieg beendet den Lauf.
 
 Die lokale Besetzung wählst du vor dem Start. Eine Tastatur kann genau einen Platz übernehmen. Mit zwei Gamepads und Tastatur können drei Personen spielen. Bis zu drei Gamepads ohne Tastatur sind ebenfalls möglich. Freie Plätze übernimmt die CPU.
 
@@ -61,4 +61,4 @@ godot --path . --script res://tests/ball_render.gd -- --computer
 godot --headless --path . --export-release "Windows x64"
 ```
 
-Die Pixel-Art-Arenen haben intern 640 × 360 Pixel. Japan nutzt einen Wasserloop aus 24 Bildern. Der Kasbah-Hof in Marokko wurde mit ImageGen erzeugt. Die Kämpfer stammen aus 2D-Spriteblättern von Runway. Die beiliegenden OFL-Dateien gehören zu Barlow Condensed und IBM Plex Mono.
+Der Spielbereich hat 640 × 360 logische Einheiten. Japan und Marokko verwenden Hintergründe mit 640 × 360 Pixeln. Japan nutzt einen Wasserloop aus 24 Bildern. Der Kasbah-Hof wurde mit ImageGen erzeugt. Die Strandarena in Rio verwendet einen Hintergrund mit 1920 × 1080 Pixeln. An der Wasserlinie läuft eine kleine Welle über den nassen Sand und zieht sich wieder zurück. Die 2D-Spriteblätter der Kämpfer stammen von Runway. Die beiliegenden OFL-Dateien gehören zu Barlow Condensed und IBM Plex Mono.

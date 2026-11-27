@@ -628,17 +628,44 @@ func test_game() -> void:
 	check(game.campaign.deciding and game.tournament.sudden_death and game.tournament.fighters.size() == 3,
 		"Three tied fighters enter sudden death")
 	close_campaign_round(game, 0)
-	check(game.campaign.qualified, "A local winner qualifies for the next venue")
+	check(game.campaign.qualified and game.overlay_buttons[0].text == "Nach Marokko",
+		"A local winner in Japan can continue to Morocco")
 	game.advance()
 	check(game.campaign.location == 1 and game.campaign.round == 1 and game.campaign.wins == [0, 0, 0],
-		"Marocco starts a fresh set of three rounds")
+		"Morocco starts a fresh set of three rounds")
 	for i in 3:
 		close_campaign_round(game, 0 if i < 2 else 1)
 		if i < 2:
 			game.advance()
-	check(game.campaign.finished and game.campaign.winner == 0 and not game.campaign.qualified, "Second venue concludes the tournament")
+	check(game.campaign.finished and game.campaign.qualified and game.overlay_buttons[0].text == "Nach Brasilien",
+		"A local winner in Morocco can continue to Brazil")
+	if game.campaign.qualified:
+		game.advance()
+		check(game.phase == "fight" and game.campaign.location == 2 and game.campaign.round == 1
+			and game.campaign.wins == [0, 0, 0] and game.pads == [-1, -2, -2],
+			"Rio starts a fresh set with the returning player and two CPU fighters")
+		check(root.content_scale_mode == Window.CONTENT_SCALE_MODE_CANVAS_ITEMS,
+			"Rio renders its high-resolution background at window resolution")
+		for i in 3:
+			close_campaign_round(game, 0 if i < 2 else 2)
+			if i < 2:
+				game.advance()
+		check(game.campaign.finished and game.campaign.winner == 0 and not game.campaign.qualified
+			and game.overlay_buttons[0].text == "Hauptmenü", "Rio concludes the tournament")
 	game.advance()
-	check(game.phase == "menu", "Tournament final leads back to the main menu")
+	check(game.phase == "menu" and root.content_scale_mode == Window.CONTENT_SCALE_MODE_VIEWPORT,
+		"Tournament final leads back to the main menu at the original display scale")
+	game.show_tournament_setup()
+	game.start_campaign()
+	for winner in [0, 0, 1, 1, 1, 2]:
+		close_campaign_round(game, winner)
+		if not game.campaign.finished or game.campaign.qualified:
+			game.advance()
+	check(game.campaign.location == 1 and game.campaign.finished and game.campaign.winner == 1
+		and not game.campaign.qualified and game.overlay_buttons[0].text == "Hauptmenü",
+		"A CPU win in Morocco ends the tournament")
+	game.advance()
+	check(game.phase == "menu", "Losing in Morocco leads back to the main menu")
 	game.show_tournament_setup()
 	game.start_campaign()
 	for winner in [0, 1, -1]:

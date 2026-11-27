@@ -1,8 +1,7 @@
 extends Node2D
 
 const Art = preload("res://scripts/fighter_art.gd")
-const BACKGROUND = preload("res://assets/arena.png")
-const MOROCCO = preload("res://assets/arena-morocco.png")
+const Campaign = preload("res://scripts/campaign.gd")
 const WATER = preload("res://assets/arena-ripples.png")
 const DISPLAY_FONT = preload("res://assets/BarlowCondensed-ExtraBold.ttf")
 const MONO_FONT = preload("res://assets/IBMPlexMono-Medium.ttf")
@@ -16,8 +15,15 @@ const BALL_COLORS := [Color("8ce0ab"), Color("fbd079"), Color("94cbff")]
 
 var game
 var art := Art.new()
+var background := Sprite2D.new()
+var background_material := ShaderMaterial.new()
 var elapsed := 0.0
 var version: String = ProjectSettings.get_setting("application/config/version")
+
+func _ready() -> void:
+	background.centered = false
+	background.show_behind_parent = true
+	add_child(background)
 
 func _process(delta: float) -> void:
 	elapsed += delta
@@ -26,9 +32,14 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if game == null:
 		return
-	var morocco: bool = game.campaign.active and game.campaign.location == 1
-	draw_texture(MOROCCO if morocco else BACKGROUND, Vector2.ZERO)
-	if not morocco:
+	var location: int = game.campaign.location if game.campaign.active else 0
+	var venue: Dictionary = Campaign.LOCATIONS[location]
+	if background.texture != venue.background:
+		background.texture = venue.background
+		background.scale = Vector2(640, 360) / background.texture.get_size()
+		background_material.shader = venue.get("shader")
+		background.material = background_material if background_material.shader else null
+	if location == 0:
 		draw_water()
 	if game.phase in ["menu", "training_menu", "tournament_menu", "test_menu"]:
 		draw_menu()
@@ -69,7 +80,7 @@ func draw_menu() -> void:
 			text("TESTEN", 34, 86, 48, GOLD, DISPLAY_FONT)
 		"tournament_menu":
 			text("TURNIER", 34, 91, 48, GOLD, DISPLAY_FONT)
-			text("Japan  →  Marokko", 36, 114, 10, MUTED)
+			text(game.campaign.route_text(), 36, 114, 10, MUTED)
 			text("Freie Plätze übernimmt die CPU.", 36, 151, 9, MUTED)
 		_:
 			text("TRIPLE", 34, 78, 53, PAPER, DISPLAY_FONT)
@@ -123,7 +134,10 @@ func draw_fight() -> void:
 	else:
 		center_text(round_label, timer_x, 51, 7, MUTED)
 	if game.banner > 0 and game.phase == "fight":
-		var venue: String = game.campaign.LOCATIONS[game.campaign.location] if game.campaign.active else "Bereit machen"
+		var venue := "Bereit machen"
+		if game.campaign.active:
+			var stop: Dictionary = Campaign.LOCATIONS[game.campaign.location]
+			venue = "%s · %s" % [stop.country, stop.venue]
 		banner(round_label, venue if game.banner > 25 else "Kämpfen!")
 	elif match_state.reset_left > 0 and game.phase == "fight":
 		if count == 2:
@@ -444,8 +458,9 @@ func draw_overlay() -> void:
 		var state = game.tournament
 		if game.campaign.active and game.campaign.finished:
 			title = "QUALIFIZIERT" if game.campaign.qualified else "TURNIER BEENDET"
-			detail = "%s gewinnt in %s" % [fighter_name(game.campaign.winner), game.campaign.LOCATIONS[game.campaign.location].split(" · ")[0]]
-			if game.campaign.location == 1 and game.tournament_seats[game.campaign.winner] != -2:
+			var country: String = Campaign.LOCATIONS[game.campaign.location].country
+			detail = "%s gewinnt in %s" % [fighter_name(game.campaign.winner), country]
+			if not game.campaign.has_next_location() and game.tournament_seats[game.campaign.winner] != -2:
 				title = "TURNIER GEWONNEN"
 		elif state.winners.size() > 1:
 			title = "UNENTSCHIEDEN"

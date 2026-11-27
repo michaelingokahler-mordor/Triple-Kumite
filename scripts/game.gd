@@ -59,6 +59,7 @@ func _ready() -> void:
 
 func show_menu() -> void:
 	campaign.active = false
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	phase = "menu"
 	Input.use_accumulated_input = true
 	message = ""
@@ -149,6 +150,10 @@ static func seat_devices(connected: Array[int], choice: Vector2i) -> Array[int]:
 	return seats
 
 func start_campaign_round() -> void:
+	var window := get_window()
+	var background: Texture2D = Campaign.LOCATIONS[campaign.location].background
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS \
+		if background.get_width() > window.content_scale_size.x else Window.CONTENT_SCALE_MODE_VIEWPORT
 	pads.clear()
 	for slot in campaign.roster:
 		pads.append(tournament_seats[slot])
@@ -363,7 +368,7 @@ func show_result(state: String) -> void:
 	if state != "round_end" or solo_duel:
 		label = "Nochmal"
 	elif campaign.finished:
-		label = "Nach Marokko" if campaign.qualified else "Hauptmenü"
+		label = "Nach %s" % Campaign.LOCATIONS[campaign.location + 1].country if campaign.qualified else "Hauptmenü"
 	elif campaign.round == Campaign.ROUNDS_PER_LOCATION:
 		label = "Zum Stechen"
 	result_delay = 52

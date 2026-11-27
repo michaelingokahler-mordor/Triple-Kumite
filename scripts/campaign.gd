@@ -1,6 +1,11 @@
 extends RefCounted
 
-const LOCATIONS := ["Japan · Küstendojo", "Marokko · Kasbah"]
+const LOCATIONS := [
+	{"country": "Japan", "venue": "Küstendojo", "background": preload("res://assets/arena.png")},
+	{"country": "Marokko", "venue": "Kasbah", "background": preload("res://assets/arena-morocco.png")},
+	{"country": "Brasilien", "venue": "Rio de Janeiro", "background": preload("res://assets/arena-rio.png"),
+		"shader": preload("res://assets/rio_surf.gdshader")},
+]
 const ROUNDS_PER_LOCATION := 3
 
 var active := false
@@ -48,7 +53,16 @@ func record_round(round_winners: Array[int], human_slots: Array[bool]) -> void:
 func complete_location(slot: int, human_slots: Array[bool]) -> void:
 	winner = slot
 	finished = true
-	qualified = location + 1 < LOCATIONS.size() and human_slots[winner]
+	qualified = has_next_location() and human_slots[winner]
+
+func has_next_location() -> bool:
+	return location + 1 < LOCATIONS.size()
+
+func route_text() -> String:
+	var countries := PackedStringArray()
+	for stop in LOCATIONS:
+		countries.append(stop.country)
+	return "  →  ".join(countries)
 
 func next_round() -> void:
 	if not deciding and round == ROUNDS_PER_LOCATION:
